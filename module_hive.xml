@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_hive" default="compile.module.hive">
+  <dirname property="module.hive.basedir" file="${ant.file.module_hive}"/>
+  
+  <property name="module.jdk.home.hive" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.hive" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.hive" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.hive" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="hive.output.dir" value="${module.hive.basedir}/out/production/Hive"/>
+  <property name="hive.testoutput.dir" value="${module.hive.basedir}/out/test/Hive"/>
+  
+  <path id="hive.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="hive.module.production.classpath">
+    <path refid="${module.jdk.classpath.hive}"/>
+  </path>
+  
+  <path id="hive.runtime.production.module.classpath">
+    <pathelement location="${hive.output.dir}"/>
+  </path>
+  
+  <path id="hive.module.classpath">
+    <path refid="${module.jdk.classpath.hive}"/>
+    <pathelement location="${hive.output.dir}"/>
+  </path>
+  
+  <path id="hive.runtime.module.classpath">
+    <pathelement location="${hive.testoutput.dir}"/>
+    <pathelement location="${hive.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.hive">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.hive">
+    <patternset refid="excluded.from.module.hive"/>
+  </patternset>
+  
+  <path id="hive.module.sourcepath">
+    <dirset dir="${module.hive.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.hive" depends="compile.module.hive.production,compile.module.hive.tests" description="Compile module Hive"/>
+  
+  <target name="compile.module.hive.production" depends="register.custom.compilers" description="Compile module Hive; production classes">
+    <mkdir dir="${hive.output.dir}"/>
+    <javac2 destdir="${hive.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.hive}/javac">
+      <compilerarg line="${compiler.args.hive}"/>
+      <bootclasspath refid="hive.module.bootclasspath"/>
+      <classpath refid="hive.module.production.classpath"/>
+      <src refid="hive.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.hive"/>
+    </javac2>
+    
+    <copy todir="${hive.output.dir}">
+      <fileset dir="${module.hive.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.hive.tests" depends="register.custom.compilers,compile.module.hive.production" description="compile module Hive; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.hive" description="cleanup module">
+    <delete dir="${hive.output.dir}"/>
+    <delete dir="${hive.testoutput.dir}"/>
+  </target>
+</project>

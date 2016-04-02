@@ -1,0 +1,22 @@
+wQ
+wA1 -wQ
+wA2 /wQ
+wA3 \wQ
+wB1 -wA1
+wB2 /wA2
+wG1 \wA1
+wG2 -wB1
+wG3 /wB1
+wS1 \wB1
+wS2 -wS1
+bQ wQ-
+bA1 bQ-
+bA2 bQ/
+bA3 bQ\
+bB1 bA1-
+bB2 bA1/
+bG1 bA1\
+bG2 bB1-
+bG3 bB2/
+bS1 bB1\
+bS2 bS1-

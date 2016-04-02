@@ -1,0 +1,8 @@
+wA1
+bA1 -wA1
+wA2 wA1/
+bA2 /bA1
+wQ wA1-
+bQ -bA1
+wA2 bA2-
+bA2 /wQ

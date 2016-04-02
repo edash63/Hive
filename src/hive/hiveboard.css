@@ -1,0 +1,59 @@
+.root {
+    -fx-background-color: papayawhip;
+}
+
+.movelistpane {
+    -fx-background-color: burlywood;
+    -fx-border: 10;
+    -fx-border-color: brown;
+}
+
+.freepawnpane {
+    -fx-background-color: burlywood;
+    -fx-border: 5;
+    -fx-border-color: brown;
+}
+
+.boardpane {
+    -fx-background-color: linen;
+    -fx-border: 5;
+    -fx-border-color: brown;
+}
+
+.whitepawn {
+    -fx-fill: white;
+    -fx-stroke: black;
+}
+
+.whitepawn:hover {
+    -fx-fill: #e6e6e6;
+    -fx-stroke: #1a1a1a;
+}
+
+.whitepawn:link {
+    -fx-fill: #b3b3b3;
+    -fx-stroke: #262626;
+}
+
+.dotwhitepawn {
+    -fx-fill: black;
+}
+
+.blackpawn {
+    -fx-fill: black;
+    -fx-stroke: white;
+}
+
+.blackpawn:hover {
+    -fx-fill: #808080;
+    -fx-stroke: #e6e6e6;
+}
+
+.blackpawn:link {
+    -fx-fill: #c0c0c0;
+    -fx-stroke: #d9d9d9;
+}
+
+.dotblackpawn {
+    -fx-fill: white;
+}
