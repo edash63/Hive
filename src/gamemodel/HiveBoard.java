@@ -2,6 +2,8 @@ package gamemodel;
 
 import exception.HiveException;
 import hive.TransferPiece;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.control.Label;
 import pawn.*;
 
@@ -25,7 +27,7 @@ public class HiveBoard {
 
     private ArrayList<HiveMove> hiveMoveList;
     private int currentMoveIndex;
-    private Label startLabel;
+    private IntegerProperty curMoveIndex;
 
     private boolean first = true; // only the first move can have no destination
 
@@ -50,6 +52,7 @@ public class HiveBoard {
 
         hiveMoveList = new ArrayList<>();
         currentMoveIndex = START_MOVE_LIST;
+        curMoveIndex = new SimpleIntegerProperty(START_MOVE_LIST);
     }
 
     private void createPawns(ArrayList<HivePawn> pawnList, char color) {
@@ -66,16 +69,16 @@ public class HiveBoard {
         pawnList.add(new HPGrasshopper(color, 3));
     }
 
-    public void InitializeViewer(Label startLabel){
+    public void InitializeViewer(){
         whitePawns.forEach(pawn -> pawn.placePawnViewer());
         blackPawns.forEach(pawn -> pawn.placePawnViewer());
-
-        this.startLabel = startLabel;
     }
 
     public ArrayList<HiveMove> getHiveMoveList() {
         return hiveMoveList;
     }
+
+    public IntegerProperty currentMoveIndexProperty() { return curMoveIndex; }
 
     public void addMove(String moveDescription) throws HiveException {
         hiveMoveList.add(new HiveMove(moveDescription));
@@ -85,8 +88,11 @@ public class HiveBoard {
         if (hasNextMove()) {
             currentMoveIndex += 1;
             hiveMoveList.get(currentMoveIndex).advance(executeViewer);
+            if (executeViewer)
+                curMoveIndex.set(currentMoveIndex);
         }
     }
+
     public void advanceMove() throws HiveException {
         advanceMove(true);
     }
@@ -95,6 +101,7 @@ public class HiveBoard {
         if (hasPreviousMove()) {
             hiveMoveList.get(currentMoveIndex).takeBack();
             currentMoveIndex -= 1;
+            curMoveIndex.set(currentMoveIndex);
         }
     }
 

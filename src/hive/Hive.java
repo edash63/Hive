@@ -25,9 +25,9 @@ public class Hive extends Application {
     private String fileName, testmodusName;
     private boolean testmodus = false;
 
-    HiveBoard game;
-    Parent root;
-    Scene scene;
+    private HiveBoard game;
+    private Parent root;
+    private Scene scene;
 
     private static void error(String message) {
         System.err.println("ERROR: " + message);
@@ -59,6 +59,7 @@ public class Hive extends Application {
                 }
             }
         }
+
     }
 
     @Override

@@ -14,18 +14,18 @@ import pawn.HivePawn;
  * Created by Wout Slabbinck on 01/04/2016.
  */
 public class HivePawnViewer  extends Group{
-    private final static double HEXAGON_SCALE_FACTOR = 300.0; // Chosen so that the images fit
+    private final static double HEXAGON_SCALE_FACTOR = 75.0; // Chosen so that the images fit
     private final static double HEXAGON_WIDTH = 0.866 * HEXAGON_SCALE_FACTOR;
     private final static double HEXAGON_HEIGHT = 1.0 * HEXAGON_SCALE_FACTOR;
-    private final static double FIRST_DOT_X = 90.0;
-    private final static double FIRST_DOT_Y = -60.0;
+    private final static double FIRST_DOT_X = 22.0;
+    private final static double FIRST_DOT_Y = -15.0;
     private final static double DOT_X_INCR = 0.0;
-    private final static double DOT_Y_INCR = 40.0;
-    private final static double DOT_RADIUS = 15.0;
-    private final static double GROUP_SCALE_FACTOR = 0.25;
+    private final static double DOT_Y_INCR = 10.0;
+    private final static double DOT_RADIUS = 4.0;
+    private final static double IMAGE_SCALE_FACTOR = 0.25; // Chosen so that the images fit
 
-    public final static double VIEWERHIVEPAWN_HEIGHT = HEXAGON_HEIGHT * GROUP_SCALE_FACTOR;
-    public final static double VIEWERHIVEPAWN_WIDTH = HEXAGON_WIDTH * GROUP_SCALE_FACTOR;
+    public final static double VIEWERHIVEPAWN_HEIGHT = HEXAGON_HEIGHT;
+    public final static double VIEWERHIVEPAWN_WIDTH = HEXAGON_WIDTH;
 
     // Positions on freePawnPane;
     private final static double xPosCenter = VIEWERHIVEPAWN_WIDTH * 2.0;
@@ -36,10 +36,8 @@ public class HivePawnViewer  extends Group{
 
     private static Pane boardPane;
     private static Pane freePawnPane;
-    private static VBox moveListPane;
 
     private final HivePawn pawn;
-    private final String description;
     private final char type;
     private final char color;
     private final int number;
@@ -49,11 +47,10 @@ public class HivePawnViewer  extends Group{
     public HivePawnViewer (HivePawn pawn) {
 
         this.pawn = pawn;
-        this.description = pawn.getDescription();
         this.onBoardPane = false;
-        type = description.charAt(1);
-        color = description.charAt(0);
-        number = (description.length() > 2) ? Character.getNumericValue(description.charAt(2)) : 0;
+        type = pawn.getDescription().charAt(1);
+        color = pawn.getDescription().charAt(0);
+        number = (pawn.getDescription().length() > 2) ? Character.getNumericValue(pawn.getDescription().charAt(2)) : 0;
 
         Polygon hex = new Polygon(
                 0.0, -HEXAGON_HEIGHT/2.0,
@@ -70,10 +67,13 @@ public class HivePawnViewer  extends Group{
 
         String imageFilename = "/images/" + color + "/" + type + ".png";
         Image pawnImage = new Image(getClass().getResource(imageFilename).toExternalForm());
+
         ImageView pawnImageView = new ImageView();
         pawnImageView.setImage(pawnImage);
-        pawnImageView.setTranslateX(-pawnImage.getWidth()/2.0);
-        pawnImageView.setTranslateY(-pawnImage.getHeight()/2.0);
+        pawnImageView.setFitWidth(pawnImage.getWidth()* IMAGE_SCALE_FACTOR);
+        pawnImageView.setFitHeight(pawnImage.getHeight()* IMAGE_SCALE_FACTOR);
+        pawnImageView.setTranslateX(-pawnImageView.getFitWidth()/2.0);
+        pawnImageView.setTranslateY(-pawnImageView.getFitHeight()/2.0);
         pawnImageView.setMouseTransparent(true);
         getChildren().addAll(hex, pawnImageView);
 
@@ -87,9 +87,6 @@ public class HivePawnViewer  extends Group{
 
             getChildren().add(dot);
         }
-
-        setScaleX(GROUP_SCALE_FACTOR);
-        setScaleY(GROUP_SCALE_FACTOR);
     }
 
     public static void setBoardPane(Pane boardPane) {
@@ -98,10 +95,6 @@ public class HivePawnViewer  extends Group{
 
     public static void setFreePawnPane(Pane freePawnPane) {
         HivePawnViewer.freePawnPane = freePawnPane;
-    }
-
-    public static void setMoveListPane(VBox moveListPane) {
-        HivePawnViewer.moveListPane = moveListPane;
     }
 
     public void place() {

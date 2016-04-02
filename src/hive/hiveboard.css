@@ -9,6 +9,7 @@
 }
 
 .freepawnpane {
+    -fx-padding: 10;
     -fx-background-color: burlywood;
     -fx-border: 5;
     -fx-border-color: brown;
@@ -23,6 +24,7 @@
 .whitepawn {
     -fx-fill: white;
     -fx-stroke: black;
+    -fx-stroke-width: 2;
 }
 
 .whitepawn:hover {
@@ -42,6 +44,7 @@
 .blackpawn {
     -fx-fill: black;
     -fx-stroke: white;
+    -fx-stroke-width: 2;
 }
 
 .blackpawn:hover {
@@ -56,4 +59,15 @@
 
 .dotblackpawn {
     -fx-fill: white;
+}
+
+.focusedlabel {
+    -fx-background-color: white;
+    -fx-font-family: "Courier New", Courier, monospace;
+    -fx-font-size: 12pt;
+}
+
+.unfocusedlabel {
+    -fx-font-family: "Courier New", Courier, monospace;
+    -fx-font-size: 12pt;
 }

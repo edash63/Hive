@@ -4,6 +4,8 @@ import exception.HiveException;
 import gamemodel.HiveBoard;
 import gamemodel.HiveMove;
 import gameview.HivePawnViewer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -31,18 +33,30 @@ public class HiveController {
 
         HivePawnViewer.setBoardPane(boardPane);
         HivePawnViewer.setFreePawnPane(freePawnPane);
-        HivePawnViewer.setMoveListPane(moveListPane);
 
         game = HiveBoard.getInstance();
-        game.InitializeViewer(startLabel);
+        game.InitializeViewer();
 
         startLabel = new Label("Start");
+        startLabel.getStyleClass().add("focusedlabel");
         moveListPane.getChildren().add(startLabel);
         ArrayList<HiveMove> moveList = game.getHiveMoveList();
         for (HiveMove move : moveList) {
             Label label = move.getMoveLabel();
+            label.getStyleClass().add("unfocusedlabel");
             moveListPane.getChildren().add(move.getMoveLabel());
         }
+
+        game.currentMoveIndexProperty().addListener((observable, oldValue, newValue) -> {
+            changeMoveListFocus(oldValue.intValue(), newValue.intValue());
+        });
+    }
+
+    private void changeMoveListFocus(int oldValue, int newValue) {
+        moveListPane.getChildren().get(oldValue+1).getStyleClass().clear();
+        moveListPane.getChildren().get(oldValue+1).getStyleClass().add("unfocusedlabel");
+        moveListPane.getChildren().get(newValue+1).getStyleClass().clear();
+        moveListPane.getChildren().get(newValue+1).getStyleClass().add("focusedlabel");
     }
 
     @FXML
