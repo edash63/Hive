@@ -1,11 +1,11 @@
 package gamemodel;
 
 import exception.HiveException;
+import gamemodel.pawn.*;
+import gameview.HivePawnSprite;
 import hive.TransferPiece;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.control.Label;
-import pawn.*;
 
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -70,8 +70,8 @@ public class HiveBoard {
     }
 
     public void InitializeViewer(){
-        whitePawns.forEach(pawn -> pawn.placePawnViewer());
-        blackPawns.forEach(pawn -> pawn.placePawnViewer());
+        whitePawns.forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); pawn.setSprite(sprite); sprite.place(); } );
+        blackPawns.forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); pawn.setSprite(sprite); sprite.place(); } );
     }
 
     public ArrayList<HiveMove> getHiveMoveList() {
@@ -84,17 +84,12 @@ public class HiveBoard {
         hiveMoveList.add(new HiveMove(moveDescription));
     }
 
-    private void advanceMove(boolean executeViewer) throws HiveException {
+    public void advanceMove() throws HiveException {
         if (hasNextMove()) {
             currentMoveIndex += 1;
-            hiveMoveList.get(currentMoveIndex).advance(executeViewer);
-            if (executeViewer)
-                curMoveIndex.set(currentMoveIndex);
+            hiveMoveList.get(currentMoveIndex).advance();
+            curMoveIndex.set(currentMoveIndex);
         }
-    }
-
-    public void advanceMove() throws HiveException {
-        advanceMove(true);
     }
 
     public void takebackMove() throws HiveException {
@@ -120,12 +115,12 @@ public class HiveBoard {
 
     public void gotoEndOfGame() throws HiveException {
         while (hasNextMove())
-            advanceMove(true);
+            advanceMove();
     }
 
     public void resolveMoves() throws HiveException {
         while (hasNextMove())
-            advanceMove(false);
+            advanceMove();
 
         // restore board to initial state
         for (int i = 0; i < FULL_BOARD_SIZE; i++) {
@@ -138,16 +133,6 @@ public class HiveBoard {
         blackPawns.forEach(pawn -> pawn.setPosition(null));
 
         currentMoveIndex = START_MOVE_LIST;
-    }
-
-    public void place(String pawnDescr, String placeDescr) throws HiveException {
-
-        HivePawn pawn = find(pawnDescr);
-        BoardPosition boardPosition = findNewPosition(placeDescr);
-        if (boardPosition.getPawn() != null)
-            throw new HiveException("Position already taken: " + pawnDescr + " " + placeDescr);
-        else
-            pawn.setPosition(boardPosition);
     }
 
     public HivePawn find(String description) throws HiveException {

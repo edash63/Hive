@@ -2,7 +2,7 @@ package gamemodel;
 
 import exception.HiveException;
 import javafx.scene.control.Label;
-import pawn.HivePawn;
+import gamemodel.pawn.HivePawn;
 
 /**
  * Created by Wout Slabbinck on 21/03/2016.
@@ -36,19 +36,19 @@ public class HiveMove {
         return moveLabel;
     }
 
-    public void advance(boolean executeViewer) throws HiveException {
+    public void advance() throws HiveException {
         // The game must be in the correct state for the move
         if (destinationPosition == null) {
             // advance is called for the first time
             startPosition = pawn.getPosition();
             destinationPosition = HiveBoard.getInstance().findNewPosition(destinationDescription);
         }
-        pawn.move(destinationPosition, executeViewer);
+        pawn.move(destinationPosition);
     }
 
     public void takeBack() throws HiveException {
         destinationPosition.setPawn(null);
-        pawn.move(startPosition, true);
+        pawn.move(startPosition);
     }
 
 

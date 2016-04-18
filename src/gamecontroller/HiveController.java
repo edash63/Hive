@@ -3,9 +3,7 @@ package gamecontroller;
 import exception.HiveException;
 import gamemodel.HiveBoard;
 import gamemodel.HiveMove;
-import gameview.HivePawnViewer;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import gameview.HivePawnSprite;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 
 public class HiveController {
     private HiveBoard game;
-    private Label startLabel;
 
     public VBox moveListPane;
     public Pane boardPane;
@@ -31,13 +28,13 @@ public class HiveController {
     @FXML
     public void initialize(){
 
-        HivePawnViewer.setBoardPane(boardPane);
-        HivePawnViewer.setFreePawnPane(freePawnPane);
+        HivePawnSprite.setBoardPane(boardPane);
+        HivePawnSprite.setFreePawnPane(freePawnPane);
 
         game = HiveBoard.getInstance();
         game.InitializeViewer();
 
-        startLabel = new Label("Start");
+        Label startLabel = new Label("Start");
         startLabel.getStyleClass().add("focusedlabel");
         moveListPane.getChildren().add(startLabel);
         ArrayList<HiveMove> moveList = game.getHiveMoveList();

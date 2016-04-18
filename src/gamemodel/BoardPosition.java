@@ -1,6 +1,6 @@
 package gamemodel;
 
-import pawn.HivePawn;
+import gamemodel.pawn.HivePawn;
 
 /**
  * Created by Wout Slabbinck on 31/03/2016.
