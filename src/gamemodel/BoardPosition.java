@@ -1,5 +1,6 @@
 package gamemodel;
 
+import exception.HiveException;
 import gamemodel.pawn.HivePawn;
 
 /**
@@ -30,5 +31,29 @@ public class BoardPosition {
 
     public void setPawn(HivePawn pawn) {
         this.pawn = pawn;
+    }
+
+    public BoardPosition PosUpperLeft() throws HiveException {
+        return HiveBoard.getInstance().position(x, y-1);
+    }
+
+    public BoardPosition PosLevelLeft() throws HiveException {
+        return HiveBoard.getInstance().position(x-1, y);
+    }
+
+    public BoardPosition PosLowerLeft() throws HiveException {
+        return HiveBoard.getInstance().position(x-1, y+1);
+    }
+
+    public BoardPosition PosUpperRight() throws HiveException {
+        return HiveBoard.getInstance().position(x+1, y-1);
+    }
+
+    public BoardPosition PosLevelRight() throws HiveException {
+        return HiveBoard.getInstance().position(x+1, y);
+    }
+
+    public BoardPosition PosLowerRight() throws HiveException {
+        return HiveBoard.getInstance().position(x, y+1);
     }
 }

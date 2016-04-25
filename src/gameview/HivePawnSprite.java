@@ -9,10 +9,14 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import gamemodel.pawn.HivePawn;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * Created by Wout Slabbinck on 01/04/2016.
  */
-public class HivePawnSprite extends Group {
+
+public class HivePawnSprite extends Group implements Observer {
     private final static double HEXAGON_SCALE_FACTOR = 75.0; // Chosen so that the images fit
     private final static double HEXAGON_WIDTH = 0.866 * HEXAGON_SCALE_FACTOR;
     private final static double HEXAGON_HEIGHT = 1.0 * HEXAGON_SCALE_FACTOR;
@@ -31,21 +35,19 @@ public class HivePawnSprite extends Group {
     private final static double xPosIncr = VIEWERHIVEPAWN_WIDTH * 1.1;
     private final static double xPosColorDistance = VIEWERHIVEPAWN_WIDTH * 3.6;
     private final static double yPosCenter = VIEWERHIVEPAWN_HEIGHT * 1.5;
-    private final static double yPosIncr = VIEWERHIVEPAWN_HEIGHT * 1.5;
+    private final static double yPosIncr = VIEWERHIVEPAWN_HEIGHT * 1.1;
 
     private static Pane boardPane;
     private static Pane freePawnPane;
 
     private final HivePawn pawn;
-    private final HivePawnObserver observer;
 
     protected boolean onBoardPane;
 
     public HivePawnSprite(HivePawn pawn) {
 
         this.pawn = pawn;
-        this.observer = new HivePawnObserver(this);
-        pawn.addObserver(observer);
+        pawn.addObserver(this);
         this.onBoardPane = false;
 
         Polygon hex = new Polygon(
@@ -161,4 +163,10 @@ public class HivePawnSprite extends Group {
             }
         }
     }
+
+    @Override
+    public void update(Observable observable, Object object) {
+        move();
+    }
+
 }

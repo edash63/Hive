@@ -19,15 +19,12 @@ import java.io.FileReader;
 import java.util.List;
 
 /**
- * Created by Wout Slabbinck on 01/04/2016.
+ * @author Wout Slabbinck
+ *
  */
 public class Hive extends Application {
     private String fileName, testmodusName;
     private boolean testmodus = false;
-
-    private HiveBoard game;
-    private Parent root;
-    private Scene scene;
 
     private static void error(String message) {
         System.err.println("ERROR: " + message);
@@ -40,13 +37,14 @@ public class Hive extends Application {
         List<String> argList = getParameters().getRaw();
 
         if (argList.size() == 0) {
-
+            fileName = null;
         } else {
             fileName = argList.get(0);
-            if (argList.size() == 2) {
+            if (argList.size() >= 2) {
                 testmodusName = argList.get(1);
                 testmodus = true;
             }
+
             // filename needs .txt ending
             int length = fileName.length();
             String fileEnd;
@@ -59,14 +57,23 @@ public class Hive extends Application {
                 }
             }
         }
-
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        game = HiveBoard.getInstance(); // there is only one game
+        HiveBoard game = HiveBoard.getInstance(); // there is only one game
         BufferedReader reader = null;
+
+        if (fileName == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("There is a problem.");
+            alert.setContentText("The name of a testfile must be provided as application argument");
+
+            alert.showAndWait();
+            System.exit(0);
+        }
 
         try {
             reader = new BufferedReader(new FileReader(fileName));
@@ -80,9 +87,9 @@ public class Hive extends Application {
             // Process all moves and then go back to start, so that exeption are caught here
             game.resolveMoves();
 
-            root = FXMLLoader.load(getClass().getResource("Hive.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("Hive.fxml"));
             primaryStage.setTitle("Hive");
-            scene = new Scene(root);
+            Scene scene = new Scene(root);
             primaryStage.setScene(scene);
 
             primaryStage.show();
@@ -101,6 +108,7 @@ public class Hive extends Application {
             }
 
         } catch (HiveException e) {
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("There is a problem.");

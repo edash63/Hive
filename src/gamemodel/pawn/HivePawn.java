@@ -3,14 +3,16 @@ package gamemodel.pawn;
 import gamemodel.BoardPosition;
 import gameview.HivePawnSprite;
 
+import java.util.Observable;
+
 /**
  * Created by Wout Slabbinck on 19/03/2016.
  */
-public abstract class HivePawn extends java.util.Observable {
-    protected int number;
-    protected char color;
-    protected char type;
-    protected String description;
+public abstract class HivePawn extends Observable {
+    protected final int number;
+    protected final char color;
+    protected final char type;
+    protected final String description;
 
     protected HivePawnSprite sprite;
     protected BoardPosition position;
@@ -19,9 +21,11 @@ public abstract class HivePawn extends java.util.Observable {
         this.number = number;
         this.color = color;
         this.type = type;
-        description = "" + color + type + number;
+        if (type == 'Q')
+            description = "" + color + type;
+        else
+            description = "" + color + type + number;
 
-//        sprite = new HivePawnSprite(this);
         position = null;
     }
 

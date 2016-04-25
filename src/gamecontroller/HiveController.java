@@ -4,22 +4,29 @@ import exception.HiveException;
 import gamemodel.HiveBoard;
 import gamemodel.HiveMove;
 import gameview.HivePawnSprite;
+
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * Created by Wout Slabbinck on 31/03/2016.
  */
 
-public class HiveController {
+public class HiveController implements Observer {
     private HiveBoard game;
 
     public VBox moveListPane;
     public Pane boardPane;
     public Pane freePawnPane;
+
+    private Node focus;
 
     public HiveController() {
         game = HiveBoard.getInstance();
@@ -37,23 +44,16 @@ public class HiveController {
         Label startLabel = new Label("Start");
         startLabel.getStyleClass().add("focusedlabel");
         moveListPane.getChildren().add(startLabel);
+        focus = startLabel;
+
         ArrayList<HiveMove> moveList = game.getHiveMoveList();
         for (HiveMove move : moveList) {
-            Label label = move.getMoveLabel();
+            Label label = new Label(move.getMoveDescription());
             label.getStyleClass().add("unfocusedlabel");
-            moveListPane.getChildren().add(move.getMoveLabel());
+            moveListPane.getChildren().add(label);
         }
 
-        game.currentMoveIndexProperty().addListener((observable, oldValue, newValue) -> {
-            changeMoveListFocus(oldValue.intValue(), newValue.intValue());
-        });
-    }
-
-    private void changeMoveListFocus(int oldValue, int newValue) {
-        moveListPane.getChildren().get(oldValue+1).getStyleClass().clear();
-        moveListPane.getChildren().get(oldValue+1).getStyleClass().add("unfocusedlabel");
-        moveListPane.getChildren().get(newValue+1).getStyleClass().clear();
-        moveListPane.getChildren().get(newValue+1).getStyleClass().add("focusedlabel");
+        game.addObserver(this);
     }
 
     @FXML
@@ -76,5 +76,14 @@ public class HiveController {
     @FXML
     public void handleToEndOfGameButtonAction() throws HiveException {
         game.gotoEndOfGame();
+    }
+
+    @Override
+    public void update(Observable observable, Object object) {
+        focus.getStyleClass().clear();
+        focus.getStyleClass().add("unfocusedlabel");
+        focus = moveListPane.getChildren().get((Integer) object + 1);
+        focus.getStyleClass().clear();
+        focus.getStyleClass().add("focusedlabel");
     }
 }
