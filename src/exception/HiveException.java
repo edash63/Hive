@@ -9,8 +9,23 @@ public class HiveException extends Exception {
     public final static int ERROR_INVALID_POSITION_CHARACTER = 3;
     public final static int ERROR_INVALID_DESTINATION_POSITION = 4;
 
-    public HiveException(String message) {
-        super(message);
+    private ErrorCode reason;
+
+    public HiveException (String msg){
+        super(msg);
+        this.reason = ErrorCode.WRONG_MOVE;
     }
-    public HiveException(int errorNr) { super("Error " + errorNr); }
+    public HiveException(ErrorCode code) {
+        super(code.name());
+        this.reason =code;
+    }
+
+    @Deprecated
+    public HiveException(int errorNr) { super("Error " + errorNr);
+
+    }
+
+    public ErrorCode getReason() {
+        return reason;
+    }
 }
