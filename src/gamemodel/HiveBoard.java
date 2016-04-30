@@ -1,8 +1,8 @@
 package gamemodel;
 
+import exception.ErrorCode;
 import exception.HiveException;
 import gamemodel.pawn.*;
-import gameview.HivePawnSprite;
 import hive.TransferPiece;
 
 import java.util.ArrayList;
@@ -24,8 +24,7 @@ public class HiveBoard extends Observable {
 
     private ArrayList<HivePawn> whitePawns, blackPawns;
 
-    private ArrayList<HiveMove> hiveMoveList;
-    private int currentMoveIndex;
+    private HiveMoveList moves;
 
     private boolean first = true; // only the first move can have no destination
 
@@ -48,8 +47,7 @@ public class HiveBoard extends Observable {
         createPawns(whitePawns, 'w');
         createPawns(blackPawns, 'b');
 
-        hiveMoveList = new ArrayList<>();
-        currentMoveIndex = START_MOVE_LIST;
+        moves = new HiveMoveList();
     }
 
     private void createPawns(ArrayList<HivePawn> pawnList, char color) {
@@ -66,70 +64,30 @@ public class HiveBoard extends Observable {
         pawnList.add(new HPGrasshopper(color, 3));
     }
 
-    public void InitializeViewer(){
-        whitePawns.forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); pawn.setSprite(sprite); sprite.place(); } );
-        blackPawns.forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); pawn.setSprite(sprite); sprite.place(); } );
-    }
+    public ArrayList<HivePawn> getWhitePawns() { return whitePawns; }
 
-    public ArrayList<HiveMove> getHiveMoveList() {
-        return hiveMoveList;
-    }
+    public ArrayList<HivePawn> getBlackPawns() { return blackPawns; }
+
+    public HiveMoveList getMoves() { return moves; }
 
     public void addMove(String moveDescription) throws HiveException {
-        hiveMoveList.add(new HiveMove(moveDescription));
+        moves.addMove(moveDescription);
     }
 
     public void advanceMove() throws HiveException {
-        if (hasNextMove()) {
-            currentMoveIndex += 1;
-            hiveMoveList.get(currentMoveIndex).advance();
-            setChanged();
-            notifyObservers(currentMoveIndex);
-        }
+        moves.advance();
     }
 
     public void takebackMove() throws HiveException {
-        if (hasPreviousMove()) {
-            hiveMoveList.get(currentMoveIndex).takeBack();
-            currentMoveIndex -= 1;
-            setChanged();
-            notifyObservers(currentMoveIndex);
-        }
-    }
-
-    public boolean hasNextMove() {
-        return (currentMoveIndex < hiveMoveList.size()-1);
-    }
-
-    public boolean hasPreviousMove() {
-        return (currentMoveIndex > START_MOVE_LIST);
+        moves.takeback();
     }
 
     public void gotoStartOfGame() throws HiveException {
-        while (hasPreviousMove())
-            takebackMove();
+        moves.gotoStartOfGame();
     }
 
     public void gotoEndOfGame() throws HiveException {
-        while (hasNextMove())
-            advanceMove();
-    }
-
-    public void resolveMoves() throws HiveException {
-        while (hasNextMove())
-            advanceMove();
-
-        // restore board to initial state
-        for (int i = 0; i < FULL_BOARD_SIZE; i++) {
-            for (int j = 0; j < FULL_BOARD_SIZE; j++) {
-                board[i][j].setPawn(null);
-            }
-        }
-
-        whitePawns.forEach(pawn -> pawn.setPosition(null));
-        blackPawns.forEach(pawn -> pawn.setPosition(null));
-
-        currentMoveIndex = START_MOVE_LIST;
+        moves.gotoEndOfGame();
     }
 
     public HivePawn find(String description) throws HiveException {
@@ -141,7 +99,7 @@ public class HiveBoard extends Observable {
         else if (color == 'b')
             pawnList = blackPawns;
         else {
-            throw new HiveException("Incorrect pawn color: " + color);
+            throw new HiveException(ErrorCode.INVALID_PAWN_COLOR);
         }
 
         for (HivePawn pc : pawnList) {
@@ -149,7 +107,7 @@ public class HiveBoard extends Observable {
                 return pc;
         }
 
-        throw new HiveException("Incorrect pawn getDescription: " + description);
+        throw new HiveException(ErrorCode.INVALID_PAWN_DESCRIPTION);
     }
 
     public BoardPosition findNewPosition(String destinationDescription) throws HiveException {
@@ -160,7 +118,7 @@ public class HiveBoard extends Observable {
                 return position(0, 0);
             }
             else {
-                throw new HiveException("There can only be one pawn without destination. (line "+ (currentMoveIndex+1)+")");
+                throw new HiveException(ErrorCode.MISSING_DESTINATION_AND_NOT_FIRST_LINE);
             }
         } else {
             //posLeft bepaalt waar het richtingsteken staat. Indien die links staat is het true
@@ -179,12 +137,12 @@ public class HiveBoard extends Observable {
                 anchorPieceDescription = destinationDescription.substring(0, length - 1);
                 posLeft = false;
             } else {
-                throw new HiveException("Invalid positioning character: " + destinationDescription);
+                throw new HiveException(ErrorCode.INVALID_POSITIONING_CHARACTER);
             }
 
             BoardPosition anchor = find(anchorPieceDescription).getPosition();
             if (anchor == null)
-                throw new HiveException("Destination references pawn that is not placed yet: " + destinationDescription);
+                throw new HiveException(ErrorCode.DESTINATION_REFERENCES_UNPLACED_PAWN);
 
             BoardPosition destination = null;
             if (posLeft) {
@@ -206,7 +164,7 @@ public class HiveBoard extends Observable {
             }
 
             if (destination.getPawn() != null) {
-                throw new HiveException("There is a pawn on this position already: " + destinationDescription);
+                throw new HiveException(ErrorCode.DESTINATION_ALREADY_OCCUPIED);
             }
 
             return destination;
@@ -216,7 +174,7 @@ public class HiveBoard extends Observable {
     public BoardPosition position (int xPos, int yPos) throws HiveException {
         // Check if the new position is within bounds
         if ((xPos < -HALF_BOARD_SIZE) || (xPos > HALF_BOARD_SIZE) || (yPos < -HALF_BOARD_SIZE) || (yPos > HALF_BOARD_SIZE))
-            throw new HiveException("New destination is too far from the initial position: " + xPos + " " + yPos);
+            throw new HiveException(ErrorCode.BOARD_OVERFLOW);
 
         return board[xPos + HALF_BOARD_SIZE][yPos + HALF_BOARD_SIZE];
     }
@@ -232,12 +190,12 @@ public class HiveBoard extends Observable {
         for (HivePawn pawn : whitePawns) {
             BoardPosition pos = pawn.getPosition();
             if (pos != null)
-                list.add(new TransferPiece(pawn.getType(), pawn.getColor(), pawn.getNumber(), pos.getY(), pos.getX()));
+                list.add(new TransferPiece(pawn.getType(), pawn.getColor(), pawn.getNumber(), pos.getRow(), pos.getCol()));
         }
         for (HivePawn pawn : blackPawns) {
             BoardPosition pos = pawn.getPosition();
             if (pos != null)
-                list.add(new TransferPiece(pawn.getType(), pawn.getColor(), pawn.getNumber(), pos.getY(), pos.getX()));
+                list.add(new TransferPiece(pawn.getType(), pawn.getColor(), pawn.getNumber(), pos.getRow(), pos.getCol()));
         }
         System.out.println(list.toString());
     }

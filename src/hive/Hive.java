@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -84,8 +85,6 @@ public class Hive extends Application {
             }
             reader.close();
             reader = null;
-            // Process all moves and then go back to start, so that exeption are caught here
-            game.resolveMoves();
 
             Parent root = FXMLLoader.load(getClass().getResource("Hive.fxml"));
             primaryStage.setTitle("Hive");
@@ -95,10 +94,7 @@ public class Hive extends Application {
             primaryStage.show();
 
             if (testmodus){
-
-                while(game.hasNextMove()){
-                    game.advanceMove();
-                }
+                game.gotoEndOfGame();
                 WritableImage image = new WritableImage(1600,800);
                 scene.snapshot(image);
                 File output = new File(testmodusName);

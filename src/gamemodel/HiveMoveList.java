@@ -14,22 +14,21 @@ public class HiveMoveList extends Observable {
     private ArrayList<HiveMove> moveList;
     private int currentMoveIndex;
     private boolean erroneousMoves;
-    private int errorNr;
+    private int erroneousMoveIndex;
 
     public HiveMoveList() {
         moveList = new ArrayList<>();
         currentMoveIndex = START_MOVE_LIST;
         erroneousMoves = false;
-        errorNr = 0;
+        erroneousMoveIndex = START_MOVE_LIST;
+    }
+
+    public ArrayList<HiveMove> getMoveList() {
+        return moveList;
     }
 
     public void addMove(String moveDescription) throws HiveException {
-        try {
-            moveList.add(new HiveMove(moveDescription));
-        } catch (HiveException e) {
-            erroneousMoves = true;
-            errorNr = 1;
-        }
+        moveList.add(new HiveMove(moveDescription));
     }
 
     public boolean hasNextMove() {
@@ -47,6 +46,7 @@ public class HiveMoveList extends Observable {
                 moveList.get(currentMoveIndex).advance();
             } catch (HiveException e) {
                 erroneousMoves = true;
+                erroneousMoveIndex = currentMoveIndex;
             }
             setChanged();
             notifyObservers(currentMoveIndex);
@@ -60,5 +60,15 @@ public class HiveMoveList extends Observable {
             setChanged();
             notifyObservers(currentMoveIndex);
         }
+    }
+
+    public void gotoStartOfGame() {
+        while (hasPreviousMove())
+            takeback();
+    }
+
+    public void gotoEndOfGame() {
+        while (hasNextMove())
+            advance();
     }
 }

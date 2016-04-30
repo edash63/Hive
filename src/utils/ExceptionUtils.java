@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Created by EH053 on 26/04/2016.
+ * Created by edash63 on 26/04/2016.
  */
 public final class ExceptionUtils {
 
@@ -22,6 +22,6 @@ public final class ExceptionUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(ExceptionUtils.translate(new HiveException(ErrorCode.WRONG_MOVE)));
+        System.out.println(ExceptionUtils.translate(new HiveException(ErrorCode.EMPTY_MOVE)));
     }
 }

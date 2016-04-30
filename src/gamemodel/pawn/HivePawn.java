@@ -65,7 +65,7 @@ public abstract class HivePawn extends Observable {
         if (!onBoard())
             return "(-,-)";
         else
-            return "(" + position.getY() + "," + position.getX() + ")"; // Coordinate system as in assignment
+            return "(" + position.getRow() + "," + position.getCol() + ")"; // Coordinate system as in assignment
     }
 
     public void move(BoardPosition destinationPosition) {

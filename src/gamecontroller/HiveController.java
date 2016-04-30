@@ -3,6 +3,7 @@ package gamecontroller;
 import exception.HiveException;
 import gamemodel.HiveBoard;
 import gamemodel.HiveMove;
+import gamemodel.HiveMoveList;
 import gameview.HivePawnSprite;
 
 import javafx.fxml.FXML;
@@ -11,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -26,7 +26,8 @@ public class HiveController implements Observer {
     public Pane boardPane;
     public Pane freePawnPane;
 
-    private Node focus;
+    private Label focusLabel;
+    private HiveMove focusMove;
 
     public HiveController() {
         game = HiveBoard.getInstance();
@@ -39,21 +40,22 @@ public class HiveController implements Observer {
         HivePawnSprite.setFreePawnPane(freePawnPane);
 
         game = HiveBoard.getInstance();
-        game.InitializeViewer();
+
+        game.getWhitePawns().forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); sprite.place(); } );
+        game.getBlackPawns().forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); sprite.place(); } );
 
         Label startLabel = new Label("Start");
         startLabel.getStyleClass().add("focusedlabel");
         moveListPane.getChildren().add(startLabel);
-        focus = startLabel;
+        focusLabel = startLabel;
+        focusMove = null;
 
-        ArrayList<HiveMove> moveList = game.getHiveMoveList();
-        for (HiveMove move : moveList) {
+        for (HiveMove move : game.getMoves().getMoveList()) {
             Label label = new Label(move.getMoveDescription());
             label.getStyleClass().add("unfocusedlabel");
             moveListPane.getChildren().add(label);
         }
-
-        game.addObserver(this);
+        game.getMoves().addObserver(this);
     }
 
     @FXML
@@ -63,14 +65,12 @@ public class HiveController implements Observer {
 
     @FXML
     public void handlePrevMoveButtonAction() throws HiveException {
-        if (game.hasPreviousMove())
-            game.takebackMove();
+        game.takebackMove();
     }
 
     @FXML
     public void handleNextMoveButtonAction() throws HiveException {
-        if (game.hasNextMove())
-            game.advanceMove();
+        game.advanceMove();
     }
 
     @FXML
@@ -80,10 +80,23 @@ public class HiveController implements Observer {
 
     @Override
     public void update(Observable observable, Object object) {
-        focus.getStyleClass().clear();
-        focus.getStyleClass().add("unfocusedlabel");
-        focus = moveListPane.getChildren().get((Integer) object + 1);
-        focus.getStyleClass().clear();
-        focus.getStyleClass().add("focusedlabel");
+        focusLabel.getStyleClass().clear();
+        focusLabel.getStyleClass().add("unfocusedlabel");
+        if (focusMove != null && focusMove.isErroneous())
+            focusLabel.getStyleClass().add("erroneous");
+
+// @todo :  object is nu currentMoveIndex; te vervangen door current move
+        int moveIndex = (Integer) object;
+        focusLabel = (Label) moveListPane.getChildren().get(moveIndex  + 1); // Startlabel is at index 0
+        focusLabel.getStyleClass().clear();
+        focusLabel.getStyleClass().add("focusedlabel");
+        if (moveIndex >= 0) {
+            focusMove = ((HiveMoveList) observable).getMoveList().get(moveIndex);
+            if (focusMove.isErroneous()) {
+                focusLabel.setText(focusMove.getMoveDescription());
+                focusLabel.getStyleClass().add("erroneous");
+            }
+        } else
+            focusMove = null;
     }
 }

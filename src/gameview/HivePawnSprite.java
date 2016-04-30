@@ -146,12 +146,12 @@ public class HivePawnSprite extends Group implements Observer {
                 onBoardPane = true;
             }
 
-            // calculate new coordinates
-            int x = position.getX();
-            int y = position.getY();
+            // calculate pane coordinates
+            int row = position.getRow();
+            int col = position.getCol();
 
-            double yPane = boardPane.getHeight()/2.0 + 0.75 * y * HivePawnSprite.VIEWERHIVEPAWN_HEIGHT;
-            double xPane = boardPane.getWidth()/2.0 + ((double) x + 0.5 * y) * HivePawnSprite.VIEWERHIVEPAWN_WIDTH;
+            double yPane = boardPane.getHeight()/2.0 + 0.75 * row * HivePawnSprite.VIEWERHIVEPAWN_HEIGHT;
+            double xPane = boardPane.getWidth()/2.0 + ((double) col + 0.5 * row) * HivePawnSprite.VIEWERHIVEPAWN_WIDTH;
             setTranslateX(xPane);
             setTranslateY(yPane);
         }
