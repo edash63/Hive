@@ -3,6 +3,9 @@ package gamemodel;
 import exception.ErrorCode;
 import exception.HiveException;
 import gamemodel.pawn.HivePawn;
+import hive.Hive;
+
+import java.util.ArrayList;
 
 /**
  * Created by Wout Slabbinck on 21/03/2016.
@@ -10,35 +13,31 @@ import gamemodel.pawn.HivePawn;
 
 public class HiveMove {
     /*
-     * A move is created from a 'moveDescription' string
-     * At creation, this string is stored, but no further processing is performed
-     * At the first invocation of 'advance()', the move is resolved:
-     *  - the move description is split into the pawn description and the destination description
-     *  - the pawn is retrieved
-     *  - the start position is stored
-     *  - the destination is determined and stored
-     * If errors/exceptions are encounterd, the error is stored and the exception is thrown further
+     * Een HiveMove wordt aangemaakt van een 'moveDescription' string
+     * Bij de creatie wordt deze string opgeslagen zonder verdere behandeling
+     * Bij de eerste oproep van advance() wordt de HiveMove verder bepaald:
+     *  - moveDescription wordt gesplits in de beschrijving van de pawn en die van de bestemming
+     *  - de pawn wordt opgezocht
+     *  - de start position wordt opgeslagen; dit is nodig zetten te kunnen terugnemen
+     *  - de bestemming wordt bepaald en opgeslagen
+     * Als fouten of exceptions optreden, wordt de oorzaak opgeslagen en wordt de exception verdergeworpen
      */
-
-    public final static int ERROR_EMPTY_MOVE = 1;
-    public final static int ERROR_INVALID_PAWN = 2;
 
     private static int moveCount = 0;
     private int moveNr;
     private final String originalDescription;
-//    private final String destinationDescription;
     private HivePawn pawn;
     private BoardPosition startPosition, destinationPosition;
     private ErrorCode errorCode;
 
-    HiveMove(String moveDescription) throws HiveException {
+    HiveMove(String moveDescription) {
         moveCount += 1;
         moveNr = moveCount;
         errorCode = ErrorCode.NO_ERROR;
 
         originalDescription = moveDescription;
 
-        // pawn, startPosition and destinationPosition will be determined at first invocation of advance()
+        // pawn, startPosition en destinationPosition worden bepaald bij de eerstge oproep van advance()
         pawn = null;
         startPosition = null;
         destinationPosition = null;
@@ -49,15 +48,16 @@ public class HiveMove {
     }
 
     public String getMoveDescription() {
-        if (!isErroneous())
-            return originalDescription;
-        else
-            return originalDescription + " ! " + errorCode.name();
+        return originalDescription;
     }
 
-    public boolean isErroneous() { return errorCode != ErrorCode.NO_ERROR; }
+    public boolean isErroneous() {
+        return errorCode != ErrorCode.NO_ERROR;
+    }
 
-    public ErrorCode getErrorCode() { return errorCode; }
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
 
     public void advance() throws HiveException {
         if (!isMoveResolved()) {
@@ -68,10 +68,12 @@ public class HiveMove {
                 throw new HiveException(errorCode);
             } else {
                 try {
-                    pawn = HiveBoard.getInstance().find(parts[0]);
+                    HiveGame game = HiveGame.getInstance();
+
+                    pawn = game.find(parts[0]);
                     startPosition = pawn.getPosition();
                     String destinationDescription = (parts.length == 1) ? null : parts[1];
-                    destinationPosition = HiveBoard.getInstance().findNewPosition(destinationDescription);
+                    destinationPosition = game.findNewPosition(destinationDescription);
                 } catch (HiveException e) {
                     errorCode = e.getReason();
                     throw e;
@@ -87,4 +89,3 @@ public class HiveMove {
             pawn.move(startPosition);
     }
 }
-

@@ -10,8 +10,8 @@
 <AnchorPane prefHeight="800.0" prefWidth="1600.0" stylesheets="@hiveboard.css" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gamecontroller.HiveController">
    <children>
       <VBox fx:id="moveListPane" prefWidth="200.0" styleClass="movelistpane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      <Pane fx:id="boardPane" layoutX="200.0" prefHeight="760.0" prefWidth="900.0" styleClass="boardpane" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="500.0" AnchorPane.topAnchor="0.0" />
-      <HBox alignment="BOTTOM_CENTER" prefWidth="1000.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="500.0">
+      <Pane fx:id="boardPane" layoutX="200.0" prefHeight="760.0" prefWidth="1100.0" styleClass="boardpane" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="300.0" AnchorPane.topAnchor="0.0" />
+      <HBox alignment="BOTTOM_CENTER" prefWidth="1100.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="300.0">
          <children>
             <Button mnemonicParsing="false" onMouseClicked="#handleToStartOfGameButtonAction" prefWidth="40.0" text="|&lt;" />
             <Button mnemonicParsing="false" onMouseClicked="#handlePrevMoveButtonAction" prefWidth="40.0" text="&lt;" />
@@ -22,6 +22,6 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </padding>
       </HBox>
-      <Pane fx:id="freePawnPane" layoutX="1300.0" prefWidth="500.0" styleClass="freepawnpane" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <Pane fx:id="freePawnPane" layoutX="1300.0" prefWidth="300.0" styleClass="freepawnpane" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
    </children>
 </AnchorPane>

@@ -4,4 +4,8 @@ wQ /wS1
 bQ bS1/
 wS2 \wQ
 bS2 bQ\
-wS2 \bQ
+wB1 \wS1
+bB1 \bQ
+wB2 \wB1
+bB2 \bB1
+wG1 -bB2

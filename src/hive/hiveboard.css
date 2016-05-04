@@ -23,7 +23,7 @@
 
 .whitepawn {
     -fx-fill: white;
-    -fx-stroke: black;
+    -fx-stroke: gray;
     -fx-stroke-width: 2;
 }
 
@@ -43,7 +43,7 @@
 
 .blackpawn {
     -fx-fill: black;
-    -fx-stroke: white;
+    -fx-stroke: gray;
     -fx-stroke-width: 2;
 }
 
@@ -61,6 +61,11 @@
     -fx-fill: white;
 }
 
+.possible_position {
+    -fx-fill: #c0c0c0;
+    -fx-stroke: #d9d9d9;
+}
+
 .focusedlabel {
     -fx-background-color: white;
     -fx-font-family: "Lucida Console", "Courier New", Courier, monospace;
@@ -68,16 +73,22 @@
     -fx-padding: 3;
 }
 
-.unfocusedlabel {
+.label {
     -fx-font-family: "Lucida Console", "Courier New", Courier, monospace;
     -fx-font-size: 11pt;
     -fx-padding: 3;
 }
 
-unfocusedlabel:hover {
+.label:hover {
     -fx-background-color: lightgray;
 }
 
 .erroneous {
     -fx-text-fill: red;
+}
+
+.tooltip {
+    -fx-background-color: #ffff88;
+    -fx-text-fill: dimgray;
+    -fx-font-size: 11pt;
 }

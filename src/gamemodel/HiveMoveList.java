@@ -27,7 +27,7 @@ public class HiveMoveList extends Observable {
         return moveList;
     }
 
-    public void addMove(String moveDescription) throws HiveException {
+    public void addMove(String moveDescription) {
         moveList.add(new HiveMove(moveDescription));
     }
 
@@ -37,6 +37,10 @@ public class HiveMoveList extends Observable {
 
     public boolean hasPreviousMove() {
         return (currentMoveIndex > START_MOVE_LIST);
+    }
+
+    public int getCurrentMoveIndex() {
+        return currentMoveIndex;
     }
 
     public void advance() {

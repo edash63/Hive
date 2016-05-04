@@ -1,26 +1,33 @@
 package gamecontroller;
 
 import exception.HiveException;
-import gamemodel.HiveBoard;
+import gamemodel.BoardPosition;
+import gamemodel.HiveGame;
 import gamemodel.HiveMove;
 import gamemodel.HiveMoveList;
-import gameview.HivePawnSprite;
+import gamemodel.pawn.HivePawn;
+import gameview.HivePawnViewer;
 
+import gameview.HivePositionViewer;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import utils.ResourceUtils;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
+
+import static gameview.HivePawnViewer.*;
 
 /**
  * Created by Wout Slabbinck on 31/03/2016.
  */
 
 public class HiveController implements Observer {
-    private HiveBoard game;
+    private HiveGame game;
 
     public VBox moveListPane;
     public Pane boardPane;
@@ -29,37 +36,47 @@ public class HiveController implements Observer {
     private Label focusLabel;
     private HiveMove focusMove;
 
+    private HashSet<HivePositionViewer> positionViewerList;
+
     public HiveController() {
-        game = HiveBoard.getInstance();
+        game = HiveGame.getInstance();
+        positionViewerList = new HashSet<>();
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
+        HivePawnViewer.setController(this);
+        HivePositionViewer.setController(this);
 
-        HivePawnSprite.setBoardPane(boardPane);
-        HivePawnSprite.setFreePawnPane(freePawnPane);
+        game = HiveGame.getInstance();
 
-        game = HiveBoard.getInstance();
-
-        game.getWhitePawns().forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); sprite.place(); } );
-        game.getBlackPawns().forEach(pawn -> { HivePawnSprite sprite = new HivePawnSprite(pawn); sprite.place(); } );
+        game.getWhitePawns().forEach(pawn -> {
+            HivePawnViewer hpv = new HivePawnViewer(pawn);
+            hpv.placeOnFreePawnPane();
+        });
+        game.getBlackPawns().forEach(pawn -> {
+            HivePawnViewer hpv = new HivePawnViewer(pawn);
+            hpv.placeOnFreePawnPane();
+        });
 
         Label startLabel = new Label("Start");
-        startLabel.getStyleClass().add("focusedlabel");
+        startLabel.setMinWidth(80.0);
         moveListPane.getChildren().add(startLabel);
+        startLabel.getStyleClass().add("focusedlabel");
         focusLabel = startLabel;
         focusMove = null;
 
         for (HiveMove move : game.getMoves().getMoveList()) {
             Label label = new Label(move.getMoveDescription());
-            label.getStyleClass().add("unfocusedlabel");
+            label.setMinWidth(80.0);
             moveListPane.getChildren().add(label);
         }
         game.getMoves().addObserver(this);
     }
 
+
     @FXML
-    public void handleToStartOfGameButtonAction() throws HiveException  {
+    public void handleToStartOfGameButtonAction() throws HiveException {
         game.gotoStartOfGame();
     }
 
@@ -80,23 +97,48 @@ public class HiveController implements Observer {
 
     @Override
     public void update(Observable observable, Object object) {
-        focusLabel.getStyleClass().clear();
-        focusLabel.getStyleClass().add("unfocusedlabel");
-        if (focusMove != null && focusMove.isErroneous())
-            focusLabel.getStyleClass().add("erroneous");
+        focusLabel.getStyleClass().remove("focusedlabel");
 
-// @todo :  object is nu currentMoveIndex; te vervangen door current move
         int moveIndex = (Integer) object;
-        focusLabel = (Label) moveListPane.getChildren().get(moveIndex  + 1); // Startlabel is at index 0
-        focusLabel.getStyleClass().clear();
+        focusLabel = (Label) moveListPane.getChildren().get(moveIndex + 1); // Startlabel is at index 0
         focusLabel.getStyleClass().add("focusedlabel");
         if (moveIndex >= 0) {
             focusMove = ((HiveMoveList) observable).getMoveList().get(moveIndex);
             if (focusMove.isErroneous()) {
-                focusLabel.setText(focusMove.getMoveDescription());
-                focusLabel.getStyleClass().add("erroneous");
+                if (!focusLabel.getStyleClass().contains("erroneous")) {
+                    focusLabel.getStyleClass().add("erroneous");
+                    focusLabel.setTooltip(new Tooltip(ResourceUtils.translate(focusMove.getErrorCode())));
+                }
             }
-        } else
+        } else {
             focusMove = null;
+        }
+    }
+
+    public void highlightPositions(Set<BoardPosition> positionList) {
+        for (HivePositionViewer pv : positionViewerList) {
+            if (pv.isOnBoardPane()) {
+                boardPane.getChildren().remove(pv);
+                pv.setPosition(null);
+            }
+        }
+
+        Iterator<BoardPosition> posIter = positionList.iterator();
+        Iterator<HivePositionViewer> pvIter = positionViewerList.iterator();
+        boolean pvlistExhausted = false;
+
+        while (posIter.hasNext()) {
+            BoardPosition pos = posIter.next();
+            HivePositionViewer posvwr = null;
+
+            if (!pvlistExhausted && pvIter.hasNext()) {
+                posvwr = pvIter.next();
+            } else {
+                pvlistExhausted = true;
+                posvwr = new HivePositionViewer();
+                positionViewerList.add(posvwr);
+            }
+            posvwr.placeOnBoardPane(pos);
+        }
     }
 }

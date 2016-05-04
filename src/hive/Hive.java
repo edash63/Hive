@@ -1,7 +1,7 @@
 package hive;
 
 import exception.HiveException;
-import gamemodel.HiveBoard;
+import gamemodel.HiveGame;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -16,12 +16,10 @@ import javax.imageio.ImageIO;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.List;
 
 /**
  * @author Wout Slabbinck
- *
  */
 public class Hive extends Application {
     private String fileName, testmodusName;
@@ -63,7 +61,7 @@ public class Hive extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        HiveBoard game = HiveBoard.getInstance(); // there is only one game
+        HiveGame game = HiveGame.getInstance(); // there is only one game
         BufferedReader reader = null;
 
         if (fileName == null) {
@@ -93,26 +91,15 @@ public class Hive extends Application {
 
             primaryStage.show();
 
-            if (testmodus){
+            if (testmodus) {
                 game.gotoEndOfGame();
-                WritableImage image = new WritableImage(1600,800);
+                WritableImage image = new WritableImage(1600, 800);
                 scene.snapshot(image);
                 File output = new File(testmodusName);
-                ImageIO.write(SwingFXUtils.fromFXImage(image, null),"png", output);
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", output);
                 game.transferPieces();
                 System.exit(0);
             }
-
-        } catch (HiveException e) {
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("There is a problem.");
-            alert.setContentText(e.getMessage());
-
-            alert.showAndWait();
-            System.exit(0);
-
         } finally {
             if (reader != null) {
                 reader.close();
