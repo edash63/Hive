@@ -4,6 +4,10 @@ import exception.HiveException;
 import gamemodel.pawn.HivePawn;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static gamemodel.BoardPosition.Direction.*;
 
 /**
  * Created by Wout Slabbinck on 31/03/2016.
@@ -11,6 +15,24 @@ import java.util.*;
 public class BoardPosition {
     private final int col, row;
     private HivePawn pawn;
+
+    public enum Direction { // (row, col, char)
+        LEFT_UP(-1, 0, '\\'),
+        LEFT_MID(0, -1, '-'),
+        LEFT_DOWN(1, -1, '/'),
+        RIGHT_DOWN(1, 0, '\\'),
+        RIGHT_MID(0, 1, '-'),
+        RIGHT_UP(-1, 1, '/');
+
+        private int row, col;
+        private char positioningChar;
+
+        Direction(int row, int col, char positioningChar) {
+            this.row = row;
+            this.col = col;
+            this.positioningChar = positioningChar;
+        }
+    }
 
     public BoardPosition(int col, int row) {
         this.pawn = null;
@@ -42,36 +64,43 @@ public class BoardPosition {
         return (pawn != null);
     }
 
+    public BoardPosition neighbour(Direction direction) throws HiveException {
+        return HiveGame.getInstance().position(col + direction.col, row + direction.row);
+    }
+
     public BoardPosition leftUp() throws HiveException {
-        return HiveGame.getInstance().position(col, row -1);
+        return neighbour(LEFT_UP);
     }
 
     public BoardPosition leftMid() throws HiveException {
-        return HiveGame.getInstance().position(col -1, row);
+        return neighbour(LEFT_MID);
     }
 
     public BoardPosition leftDown() throws HiveException {
-        return HiveGame.getInstance().position(col -1, row +1);
+        return neighbour(LEFT_DOWN);
     }
 
     public BoardPosition rightUp() throws HiveException {
-        return HiveGame.getInstance().position(col +1, row -1);
+        return neighbour(RIGHT_UP);
     }
 
     public BoardPosition rightMid() throws HiveException {
-        return HiveGame.getInstance().position(col +1, row);
+        return neighbour(RIGHT_MID);
     }
 
     public BoardPosition rightDown() throws HiveException {
-        return HiveGame.getInstance().position(col, row +1);
+        return neighbour(RIGHT_DOWN);
     }
 
+
+    private static boolean useDirection = true;
     // onderzoekt de omgeving van een positie
     private class NeighbourContext {
         BoardPosition position;
         Set<BoardPosition> pawnNeighbours, emptyNeighbours;
         Map<BoardPosition, Set<BoardPosition>> neighbourSwarms;
         int nrNeighbourSwarms;
+
 
         public NeighbourContext(BoardPosition position) throws HiveException {
             this.position = position;
@@ -98,21 +127,37 @@ public class BoardPosition {
             return pawnNeighbours;
         }
 
-        public void evaluatePosition(BoardPosition position) {
-            if (position.isOccupied()) {
-                pawnNeighbours.add(position);
+        public void evaluatePosition(BoardPosition nb) {
+            if (nb.isOccupied()) {
+                pawnNeighbours.add(nb);
             } else {
-                emptyNeighbours.add(position);
+                emptyNeighbours.add(nb);
+            }
+        }
+
+        public void evaluatePosition(Direction direction) throws HiveException {
+            BoardPosition nb = position.neighbour(direction);
+
+            if (nb.isOccupied()) {
+                pawnNeighbours.add(nb);
+            } else {
+                emptyNeighbours.add(nb);
             }
         }
 
         public void evaluateNeighbours() throws HiveException {
-            evaluatePosition(position.leftDown());
-            evaluatePosition(position.leftMid());
-            evaluatePosition(position.leftUp());
-            evaluatePosition(position.rightUp());
-            evaluatePosition(position.rightMid());
-            evaluatePosition(position.rightDown());
+            if (useDirection) {
+                for (Direction direction : Direction.values()) {
+                    evaluatePosition(direction);
+                }
+            } else {
+                evaluatePosition(position.leftDown());
+                evaluatePosition(position.leftMid());
+                evaluatePosition(position.leftUp());
+                evaluatePosition(position.rightUp());
+                evaluatePosition(position.rightMid());
+                evaluatePosition(position.rightDown());
+            }
         }
 
         protected Map<BoardPosition, Set<BoardPosition>> determineNeighbourSwarms() throws HiveException {
@@ -308,8 +353,6 @@ public class BoardPosition {
         int numberOfsteps = currentPath.size();
         Set<BoardPosition> currentSteps;
 
-//        System.out.println("Allmoves @ level "+ numberOfsteps);
-
         if (!destinations.contains(possibleDestination) && possibleDestination != this) {
             destinations.add(possibleDestination);
             allMoves(destinations, currentPath, this);
@@ -332,54 +375,65 @@ public class BoardPosition {
     public Set<BoardPosition> grasshopperSteps() throws HiveException {
         Set<BoardPosition> destinations = new HashSet<>();
 
-        BoardPosition leftUp = this.leftUp();
-        if (leftUp.getPawn() != null) {
-            while (leftUp.getPawn() != null) {
-                leftUp = leftUp.leftUp();
+        if (useDirection) {
+            for (Direction direction : Direction.values()) {
+                BoardPosition pos = neighbour(direction);
+                if (pos.getPawn() != null) {
+                    while (pos.getPawn() != null) {
+                        pos = pos.neighbour(direction);
+                    }
+                    destinations.add(pos);
+                }
             }
-            destinations.add(leftUp);
-        }
-
-        BoardPosition leftMid = this.leftMid();
-        if (leftMid.getPawn() != null) {
-            while (leftMid.getPawn() != null) {
-                leftMid = leftMid.leftMid();
+        } else {
+            BoardPosition leftUp = this.leftUp();
+            if (leftUp.getPawn() != null) {
+                while (leftUp.getPawn() != null) {
+                    leftUp = leftUp.leftUp();
+                }
+                destinations.add(leftUp);
             }
-            destinations.add(leftMid);
-        }
 
-        BoardPosition leftDown = this.leftDown();
-        if (leftDown.getPawn() != null) {
-            while (leftDown.getPawn() != null) {
-                leftDown = leftDown.leftDown();
+            BoardPosition leftMid = this.leftMid();
+            if (leftMid.getPawn() != null) {
+                while (leftMid.getPawn() != null) {
+                    leftMid = leftMid.leftMid();
+                }
+                destinations.add(leftMid);
             }
-            destinations.add(leftDown);
-        }
 
-        BoardPosition rightUp = this.rightUp();
-        if (rightUp.getPawn() != null) {
-            while (rightUp.getPawn() != null) {
-                rightUp = rightUp.rightUp();
+            BoardPosition leftDown = this.leftDown();
+            if (leftDown.getPawn() != null) {
+                while (leftDown.getPawn() != null) {
+                    leftDown = leftDown.leftDown();
+                }
+                destinations.add(leftDown);
             }
-            destinations.add(rightUp);
-        }
 
-        BoardPosition rightMid = this.rightMid();
-        if (rightMid.getPawn() != null) {
-            while (rightMid.getPawn() != null) {
-                rightMid = rightMid.rightMid();
+            BoardPosition rightUp = this.rightUp();
+            if (rightUp.getPawn() != null) {
+                while (rightUp.getPawn() != null) {
+                    rightUp = rightUp.rightUp();
+                }
+                destinations.add(rightUp);
             }
-            destinations.add(rightMid);
-        }
 
-        BoardPosition rightDown = this.rightDown();
-        if (rightDown.getPawn() != null) {
-            while (rightDown.getPawn() != null) {
-                rightDown = rightDown.rightDown();
+            BoardPosition rightMid = this.rightMid();
+            if (rightMid.getPawn() != null) {
+                while (rightMid.getPawn() != null) {
+                    rightMid = rightMid.rightMid();
+                }
+                destinations.add(rightMid);
             }
-            destinations.add(rightDown);
-        }
 
+            BoardPosition rightDown = this.rightDown();
+            if (rightDown.getPawn() != null) {
+                while (rightDown.getPawn() != null) {
+                    rightDown = rightDown.rightDown();
+                }
+                destinations.add(rightDown);
+            }
+        }
         return destinations;
     }
 

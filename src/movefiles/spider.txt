@@ -1,0 +1,12 @@
+wA1
+bA1 wA1-
+wQ /wA1
+bQ bA1/
+wA2 \wQ
+bA2 bQ\
+wB1 \wA2
+bA3 \bQ
+wS1 \wB1
+bB2 \bA3
+wB2 -bB2
+bG1 wA1/
